@@ -1,17 +1,19 @@
 # simple-keystore
 
-This is a very simple keystore, implemented for a small team in the early 2000s to track and share stuff like infrastructure information, credentials etc. using PGP encryption.
+This is a very simple encrypted storage to track and share stuff like infrastructure information, credentials etc. using PGP encryption, implemented for our small team in the early 2000s.
 
-To keep it simple and convinient, scripts and data are stored together in the same repository. The update of your workspace (retrieval of the latest data), the commit of changed data and the push to the repository are all part of the scripts (using git).
+To keep it simple and convenient, scripts and data are stored together in the same repository. Updating your workspace (retrieval of the latest data), commiting changes and pushing back to the repository are all handled by the scripts (using git).
 
 
 ## Usage
+
+The system basically consists of two bash scripts.
 
 ### show-keys
 
 Update the workspace, decrypt the file `keys.asc` to `keys` and show it's contents on the console (using `less`).
 
-The file `keys.asc` has to be encypted using your public pgp-key in order to be able to decrypt it.
+The file `keys.asc` has to be encypted using your public PGP key in order to be able to decrypt it.
 
 The temporary plain text files will be overridden with random data.
 
@@ -19,7 +21,7 @@ The temporary plain text files will be overridden with random data.
 
 Update the workspace (`git pull`), decrypt the file `keys.asc` to `keys` and open an editor (using the VISUAL environment variable, defaults to "vi" if not set). After leaving the editor, changes will be commited and pushed back to your repository.
 
-The initial file `keys.asc` has to be encypted using your public pgp-key in order to be able to decrypt it. It will be encrypted with all keys listed in `encypt-to-users` after editing.
+The initial file `keys.asc` has to be encypted using your public PGP key in order to be able to decrypt it. It will be encrypted with all keys listed in `encypt-to-users` after editing.
 
 You will be prompted for a commit comment.
 
@@ -39,7 +41,7 @@ List of PGP addresses to encrypt the keys file. The public keys of all addresses
 
 * GPG
 * git
-* perl (for overwriting the plain text files with garbage. Feel free to implement `erase-keys` in a language of you choise if this annoys you)
+* perl (for overwriting the plain text files with garbage. Feel free to implement `erase-keys` in a language of you choice if this annoys you)
 
 ## Bootstrap
 
