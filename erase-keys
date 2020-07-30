@@ -1,0 +1,19 @@
+#!/usr/bin/perl -w
+use English;
+use strict;
+
+$| = 1;
+foreach my $arg(@ARGV) {
+	my $size = (stat $arg)[7];
+	
+	for(my $i=0; $i<40; $i++) {
+	   open F, "+<$arg" 
+	   	or die "file $arg could not be opened: $!";
+	   seek F, 0, 0;
+	   for(my $j=0; $j<$size; $j++) {
+	 	print F chr(rand 256);
+		}
+	   close F;
+	}
+        unlink $arg;
+}

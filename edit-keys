@@ -1,0 +1,95 @@
+#!/bin/bash
+keys_file="keys"
+keys_asc="${keys_file}.asc"
+dst_user_file="encrypt-to-users"
+sign_user_file="sign-user"
+if [ -z "$VISUAL" ]
+then
+        VISUAL="vi"
+fi
+
+if [ "$(uname -s)" = "Linux" ] ;then
+	dir=$(dirname $(readlink -f "$0"))
+else
+	dir=$(dirname $0)
+fi
+
+ask_erase_keys() {
+	if [ -e ${keys_asc}.bak -a ! -e ${keys_asc} ] ; then
+		# restore backup if cancelled during encryption
+		echo "Restoring ${keys_asc} backup"
+		mv ${keys_asc}.bak ${keys_asc}
+	fi
+
+	if [ -z "$trap_asked" -a \( -e ${keys_file} -o -e ${keys_file}.orig \) ]; then
+		echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+		echo	
+		echo "WARN: Cancelling while clear text ${keys_file} file still exists. Wipe it? (type 'no' to not wipe them)"
+		echo
+		trap_asked=1
+
+		read ok
+		case "$ok" in
+			n|no|NO|No)
+				return
+				;;
+			*)
+                                echo "wiping clear text ${key_file}..."
+				for i in ${keys_file} ${keys_file}.orig; do
+					if [ -e $i ]; then
+						$dir/erase-keys $i
+					fi
+				done	
+	
+		esac		
+	fi
+}
+
+git pull
+set -e
+cd $dir
+recipients=""
+while read admin; do
+        recipients="$recipients -r $admin"
+done <$dst_user_file
+
+sign_user=""
+if [ -e "$sign_user_file" ]; then
+	sign_user="-u $(cat "$sign_user_file")"
+fi
+
+if [ -e ${keys_file} ] ; then
+   echo "Note: cleartext ${keys_file} still exist -- Reuse it? (Default: YES)"
+   read ok
+   case "$ok" in 
+	n|no|NO|No)
+		$dir/erase-keys ${keys_file}
+	;;
+   esac
+fi
+
+if [ ! -e ${keys_file} ] ;then
+	gpg ${keys_asc} 
+	cp ${keys_file} ${keys_file}.orig
+else
+	if [ ! -e ${keys_file}.orig ]; then
+		echo "Note: No original keys file found -- Get GPG for comparison services"
+		gpg -o ${keys_file}.orig ${keys_asc} 
+	fi
+fi
+
+trap "ask_erase_keys" SIGQUIT SIGINT SIGTERM ERR 
+
+${VISUAL} ${keys_file}
+if diff -q ${keys_file} ${keys_file}.orig >/dev/null ; then
+	echo "ok, no changes. Erasing cleartext version"
+	$dir/erase-keys ${keys_file} ${keys_file}.orig
+else	
+	mv ${keys_asc} ${keys_asc}.bak
+	echo gpg --sign --encrypt --armor $sign_user $recipients ${keys_file}
+	gpg --sign --encrypt --armor $sign_user $recipients ${keys_file}
+	$dir/erase-keys ${keys_file} ${keys_file}.orig
+        git add ${keys_asc}
+	git commit -v
+        git push
+fi

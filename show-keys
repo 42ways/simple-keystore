@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ "$(uname -s)" = "Linux" ] ;then
+	dir=$(dirname $(readlink -f "$0"))
+else
+	dir=$(dirname $0)
+fi
+git pull
+gpg <$dir/keys.asc 2>/dev/null | less
