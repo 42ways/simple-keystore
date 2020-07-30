@@ -39,7 +39,7 @@ List of PGP addresses to encrypt the keys file. The public keys of all addresses
 
 * GPG
 * git
-* perl (for overwriting the plain text files with garbage. Feel free to implement `erase-keys` in a language of you choise if the annoys you)
+* perl (for overwriting the plain text files with garbage. Feel free to implement `erase-keys` in a language of you choise if this annoys you)
 
 ## Bootstrap
 
